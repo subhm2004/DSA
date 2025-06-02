@@ -4,35 +4,44 @@ using namespace std;
 class Solution
 {
 public:
-    void dfs(vector<vector<int>> &graph, int node, vector<int> &path, vector<vector<int>> &result)
+    unordered_map<int, list<pair<int, int>>> adjList;
+
+    void dfs(int node, vector<int> &path, vector<vector<int>> &result, int target)
     {
         path.push_back(node);
-
-        if (node == graph.size() - 1)
+        if (node == target)
         {
-            result.push_back(path); // If last node is the target, store the path
+            result.push_back(path);
         }
         else
         {
-            for (int neighbor : graph[node])
+            for (auto &[neighbor, _] : adjList[node])
             {
-                dfs(graph, neighbor, path, result);
+                dfs(neighbor, path, result, target);
             }
         }
-
-        path.pop_back(); // Backtrack
+        path.pop_back(); // backtrack
     }
 
     vector<vector<int>> allPathsSourceTarget(vector<vector<int>> &graph)
     {
+        int n = graph.size();
+        for (int u = 0; u < n; ++u)
+        {
+            for (int v : graph[u])
+            {
+                adjList[u].emplace_back(v, 0); // dummy weight
+            }
+        }
+
         vector<vector<int>> result;
         vector<int> path;
-        dfs(graph, 0, path, result);
+        dfs(0, path, result, n - 1);
         return result;
     }
 };
 
-// Example Usage
+// Example usage
 int main()
 {
     Solution sol;

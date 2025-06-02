@@ -20,14 +20,16 @@ public:
         }
     }
 
-    void printAdjList()
+    void printadj() const
     {
-        for (auto i : adjList)
+        cout << "Adjacency List:" << endl;
+        for (const auto &entry : adjList)
         {
-            cout << i.first << " -> ";
-            for (auto j : i.second)
+            int node = entry.first;
+            cout << "Node " << node << ":";
+            for (const auto &nbr : entry.second)
             {
-                cout << "(" << j.first << ", " << j.second << "), ";
+                cout << " -> (" << nbr.first << ", " << nbr.second << ")";
             }
             cout << endl;
         }
@@ -44,11 +46,11 @@ public:
         }
 
         // Initialize distances based on the adjacency list
-        for (auto t : adjList)
+        for (auto node : adjList)
         {
-            for (auto nbr : t.second)
+            for (auto nbr : node.second)
             {
-                int u = t.first;
+                int u = node.first;
                 int v = nbr.first;
                 int wt = nbr.second;
                 dist[u][v] = wt;
@@ -81,7 +83,7 @@ public:
         }
 
         // Print the distance matrix
-        cout << "Printing distance array: " << endl;
+        cout << "Printing distance matrix: " << endl;
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < n; j++)
@@ -101,16 +103,15 @@ int main()
     Graph g;
 
     // Add edges (directed or undirected)
-    g.addEdge(0, 1, 4, 0); // 0 -> 1 with weight 4
-    g.addEdge(0, 2, 1, 0); // 0 -> 2 with weight 1
-    g.addEdge(2, 1, 2, 0); // 2 -> 1 with weight 2
-    g.addEdge(1, 3, 1, 0); // 1 -> 3 with weight 1
-    g.addEdge(2, 3, 5, 0); // 2 -> 3 with weight 5
+    g.addEdge(0, 1, 4, 0);
+    g.addEdge(0, 2, 1, 0);
+    g.addEdge(2, 1, 2, 0);
+    g.addEdge(1, 3, 1, 0);
+    g.addEdge(2, 3, 5, 0);
 
-    int n = 4; // Number of vertices (0, 1, 2, 3)
+    int n = 4;
 
-    cout << "Adjacency List:" << endl;
-    g.printAdjList();
+    g.printadj();
 
     cout << "\nRunning Floyd-Warshall Algorithm..." << endl;
     g.floydWarshall(n);

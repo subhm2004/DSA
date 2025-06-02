@@ -21,14 +21,14 @@ public:
     }
 
     // Utility function to perform DFS and find bridges and articulation points
-    void findArticulationPointsDFS(
+    void find_Articulation_Points_DFS(
         int currentNode,
         int parentNode,
         int &timer,
         vector<int> &discoveryTime,
         vector<int> &lowestTime,
         unordered_map<int, bool> &visited,
-        unordered_map<int, bool> &articulationPoints,
+        unordered_map<int, bool> &articulation_Points,
         int &childCount)
     {
         visited[currentNode] = true;
@@ -49,7 +49,7 @@ public:
             if (!visited[neighbor])
             {
                 childCount++;
-                findArticulationPointsDFS(neighbor, currentNode, timer, discoveryTime, lowestTime, visited, articulationPoints, childCount);
+                find_Articulation_Points_DFS(neighbor, currentNode, timer, discoveryTime, lowestTime, visited, articulation_Points, childCount);
 
                 // Update the lowest discovery time
                 lowestTime[currentNode] = min(lowestTime[currentNode], lowestTime[neighbor]);
@@ -57,13 +57,13 @@ public:
                 // Articulation Point condition 1: If current node is the root and has more than one child
                 if (parentNode == -1 && childCount > 1)
                 {
-                    articulationPoints[currentNode] = true;
+                    articulation_Points[currentNode] = true;
                 }
 
                 // Articulation Point condition 2: If the lowest time of the neighbor is greater than the discovery time of current node
                 if (parentNode != -1 && lowestTime[neighbor] >= discoveryTime[currentNode])
                 {
-                    articulationPoints[currentNode] = true;
+                    articulation_Points[currentNode] = true;
                 }
             }
             else
@@ -75,12 +75,12 @@ public:
     }
 
     // Function to find articulation points in the graph
-    void findArticulationPoints(int n, vector<int> &articulationPointsVector)
+    void findArticulation_Points(int n, vector<int> &articulation_PointsVector)
     {
         vector<int> discoveryTime(n, -1);
         vector<int> lowestTime(n, -1);
         unordered_map<int, bool> visited;
-        unordered_map<int, bool> articulationPointsMap;
+        unordered_map<int, bool> articulation_PointsMap;
         int timer = 0;
 
         // Perform DFS for all connected components
@@ -89,16 +89,16 @@ public:
             if (!visited[i])
             {
                 int childCount = 0;
-                findArticulationPointsDFS(i, -1, timer, discoveryTime, lowestTime, visited, articulationPointsMap, childCount);
+                find_Articulation_Points_DFS(i, -1, timer, discoveryTime, lowestTime, visited, articulation_PointsMap, childCount);
             }
         }
 
         // Store the articulation points in the vector
-        for (auto point : articulationPointsMap)
+        for (auto point : articulation_PointsMap)
         {
             if (point.second)
             {
-                articulationPointsVector.push_back(point.first);
+                articulation_PointsVector.push_back(point.first);
             }
         }
     }
@@ -201,15 +201,15 @@ int main()
     }
 
     // Vector to store articulation points
-    vector<int> articulationPointsVector;
+    vector<int> articulation_PointsVector;
 
     // Find and display bridges and articulation points
     g.findBridges(n);
-    g.findArticulationPoints(n, articulationPointsVector);
+    g.findArticulation_Points(n, articulation_PointsVector);
 
     // Output the articulation points
     cout << "Articulation points in the graph are:" << endl;
-    for (int point : articulationPointsVector)
+    for (int point : articulation_PointsVector)
     {
         cout << point << endl;
     }

@@ -1,117 +1,114 @@
 #include <iostream>
+#include <unordered_map>
+#include <list>
 #include <vector>
 #include <queue>
-#include <limits.h>
+#include <climits>
 
 using namespace std;
 
-// Function to add an edge to the graph
-void addEdge(vector<vector<pair<int, int>>> &adj, int u, int v, int wt, bool direction)
+// Add edge to the graph
+void addEdge(unordered_map<int, list<pair<int, int>>> &adjList, int u, int v, int wt, bool direction)
 {
-    adj[u].push_back({v, wt});
+    adjList[u].push_back({v, wt});
     if (direction == 1)
-    {
-        adj[v].push_back({u, wt});
-    }
+        adjList[v].push_back({u, wt});
 }
 
-// Function to print the adjacency list
-void printadj(const vector<vector<pair<int, int>>> &adj)
+// Print adjacency list
+void printadj(const unordered_map<int, list<pair<int, int>>> &adjList)
 {
-    cout << "Adjacency List:" << endl;
-    for (int i = 1; i < adj.size(); i++)
+    cout << "Adjacency List:\n";
+    for (const auto &entry : adjList)
     {
-        cout << "Node " << i << ":";
-        for (auto nbr : adj[i])
+        int node = entry.first;
+        cout << "Node " << node << ":";
+        for (const auto &nbr : entry.second)
         {
-            cout << " -> (" << nbr.first << ", " << nbr.second << ")";
+            cout << "[" << nbr.first << ", " << nbr.second << "] ";
         }
         cout << endl;
     }
 }
 
-// Function to reconstruct and print the path using the parent array
-void printPath(int node, const vector<int> &parent)
+// Print path recursively
+void printPath(int node, const unordered_map<int, int> &parent)
 {
     if (node == -1)
-        return;                      // Base case (source node has no parent)
-    printPath(parent[node], parent); // Recursively print the parent
-    cout << node << " ";
+        return;
+    cout << node << " ";                // Print node before recursion (source to destination)
+    printPath(parent.at(node), parent); // Recurse afterwards
 }
 
-// Function to implement Dijkstra's algorithm with path printing
-void shortestDistDijkstra(const vector<vector<pair<int, int>>> &adj, int n, int src)
+// Dijkstra's algorithm
+void shortestDistDijkstra(const unordered_map<int, list<pair<int, int>>> &adjList, int src)
 {
-    vector<int> dist(n, INT_MAX);
-    vector<int> parent(n, -1); // Parent array to track the path
+    unordered_map<int, int> dist;
+    unordered_map<int, int> parent;
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
 
-    // Initial steps
+    for (const auto &entry : adjList)
+    {
+        dist[entry.first] = INT_MAX;
+        parent[entry.first] = -1;
+    }
+
     dist[src] = 0;
-    pq.push({0, src}); // {distance, node}
+    pq.push({0, src});
 
     while (!pq.empty())
     {
-        auto topElement = pq.top();
+        auto [currDist, node] = pq.top();
         pq.pop();
 
-        int nodeDistance = topElement.first;
-        int node = topElement.second;
-
-        // Neighbor traversal
-        for (auto nbr : adj[node])
+        for (const auto &nbr : adjList.find(node)->second)
         {
             int neighbor = nbr.first;
-            int edgeWeight = nbr.second;
+            int weight = nbr.second;
 
-            if (nodeDistance + edgeWeight < dist[neighbor])
+            if (currDist + weight < dist[neighbor])
             {
-                // Update distance array and priority queue
-                dist[neighbor] = nodeDistance + edgeWeight;
+                dist[neighbor] = currDist + weight;
                 pq.push({dist[neighbor], neighbor});
-                parent[neighbor] = node; // Update the parent
+                parent[neighbor] = node;
             }
         }
     }
 
-    // Printing the final distances and paths
-    cout << "Shortest distances and paths from source " << src << ":" << endl;
-    for (int i = 1; i < n; i++)
+    cout << "\nShortest distances and paths from source " << src << ":\n";
+    for (const auto &entry : adjList)
     {
-        if (dist[i] == INT_MAX)
+        int node = entry.first;
+        cout << "Node " << node << " -> ";
+        if (dist[node] == INT_MAX)
         {
-            cout << "Node " << i << " -> INF (No path)" << endl;
+            cout << "INF (No path)\n";
         }
         else
         {
-            cout << "Node " << i << " -> " << dist[i] << " (Path: ";
-            printPath(i, parent);
-            cout << ")" << endl;
+            cout << dist[node] << " (Path: ";
+            printPath(node, parent);
+            cout << ")\n";
         }
     }
 }
 
 int main()
 {
-    int n = 7;                             // Number of nodes
-    vector<vector<pair<int, int>>> adj(n); // Initialize the adjacency list for n nodes
+    unordered_map<int, list<pair<int, int>>> adjList;
 
-    // Add edges to the graph (without using node 0)
-    addEdge(adj, 6, 3, 2, 1);
-    addEdge(adj, 6, 1, 14, 1);
-    addEdge(adj, 3, 1, 9, 1);
-    addEdge(adj, 3, 2, 10, 1);
-    addEdge(adj, 1, 2, 7, 1);
-    addEdge(adj, 2, 4, 15, 1);
-    addEdge(adj, 4, 3, 11, 1);
-    addEdge(adj, 6, 5, 9, 1);
-    addEdge(adj, 4, 5, 6, 1);
+    addEdge(adjList, 6, 3, 2, 1);
+    addEdge(adjList, 6, 1, 14, 1);
+    addEdge(adjList, 3, 1, 9, 1);
+    addEdge(adjList, 3, 2, 10, 1);
+    addEdge(adjList, 1, 2, 7, 1);
+    addEdge(adjList, 2, 4, 15, 1);
+    addEdge(adjList, 4, 3, 11, 1);
+    addEdge(adjList, 6, 5, 9, 1);
+    addEdge(adjList, 4, 5, 6, 1);
 
-    // Print the adjacency list
-    printadj(adj);
-
-    // Run Dijkstra from source node 6
-    shortestDistDijkstra(adj, n, 6);
+    printadj(adjList);
+    shortestDistDijkstra(adjList, 6);
 
     return 0;
 }

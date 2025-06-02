@@ -21,7 +21,7 @@ public:
     }
 
     // Utility function to perform DFS and find bridges
-    void findBridgesDFS(
+    void find_Bridges_DFS(
         int currentNode,
         int parentNode,
         int &timer,
@@ -46,7 +46,7 @@ public:
             if (!visited[neighbor])
             {
                 // Recursive DFS call
-                findBridgesDFS(neighbor, currentNode, timer, discoveryTime, lowestTime, visited, ans);
+                find_Bridges_DFS(neighbor, currentNode, timer, discoveryTime, lowestTime, visited, ans);
 
                 // Update the lowest discovery time
                 lowestTime[currentNode] = min(lowestTime[currentNode], lowestTime[neighbor]);
@@ -66,7 +66,7 @@ public:
     }
 
     // Function to find bridges in the graph
-    void findBridges(int n)
+    void find_Bridges(int n)
     {
         vector<int> discoveryTime(n, -1);
         vector<int> lowestTime(n, -1);
@@ -79,7 +79,7 @@ public:
         {
             if (!visited[i])
             {
-                findBridgesDFS(i, -1, timer, discoveryTime, lowestTime, visited, ans);
+                find_Bridges_DFS(i, -1, timer, discoveryTime, lowestTime, visited, ans);
             }
         }
 
@@ -108,7 +108,7 @@ int main()
         g.addEdge(u, v, 1); // 1 indicates an undirected graph
     }
 
-    g.findBridges(n);
+    g.find_Bridges(n);
 
     return 0;
 }

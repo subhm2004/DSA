@@ -3,153 +3,117 @@
 #include <algorithm>
 #include <unordered_map>
 #include <list>
+#include <tuple>
 
 using namespace std;
 
-class UnionFind
-{
+class UnionFind {
 public:
     vector<int> parent;
     vector<int> rank;
 
-    // Constructor to initialize parent and rank vectors
-    UnionFind(int n) : parent(n), rank(n, 0)
-    {
-        for (int i = 0; i < n; i++)
-        {
-            parent[i] = i; // Initially, each node is its own parent
+    UnionFind(int n) : parent(n), rank(n, 0) {
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
         }
     }
 
-    // Find function with path compression
-    int find(int i)
-    {
+    int find(int i) {
         if (parent[i] == i)
             return i;
-        return parent[i] = find(parent[i]); // Path compression
+        return parent[i] = find(parent[i]);
     }
 
-    // Union function by rank
-    void unionByRank(int x, int y)
-    {
+    void unionByRank(int x, int y) {
         int x_parent = find(x);
         int y_parent = find(y);
 
         if (x_parent == y_parent)
-            return; // They are already in the same set
+            return;
 
-        // Union by rank: attach the smaller tree under the larger one
-        if (rank[x_parent] < rank[y_parent])
-        {
+        if (rank[x_parent] < rank[y_parent]) {
             parent[x_parent] = y_parent;
-        }
-        else if (rank[x_parent] > rank[y_parent])
-        {
+        } else if (rank[x_parent] > rank[y_parent]) {
             parent[y_parent] = x_parent;
-        }
-        else
-        {
-            parent[x_parent] = y_parent;
-            rank[y_parent]++; // Increase rank of the new root
+        } else {
+            parent[y_parent] = x_parent;
+            rank[x_parent]++;
         }
     }
 
-    // Count the number of connected components
-    int countComponents()
-    {
+    int countComponents() {
         int components = 0;
-        for (int i = 0; i < parent.size(); ++i)
-        {
-            if (parent[i] == i) // A root node
+        for (int i = 0; i < parent.size(); ++i) {
+            if (parent[i] == i)
                 components++;
         }
         return components;
     }
 };
 
-class Graph
-{
+class Graph {
 public:
-    unordered_map<int, list<int>> adjList;
-    vector<tuple<int, int, int>> edges; // Store edges as tuples (u, v, weight)
+    unordered_map<int, list<pair<int, int>>> adjList; // node -> [(neighbor, weight)]
+    vector<tuple<int, int, int>> edges; // (u, v, weight)
 
-    // Add edge to the graph
-    void addEdge(int u, int v, int weight, bool direction)
-    {
-        adjList[u].push_back(v);
-        edges.push_back({u, v, weight}); // Add edge to the list
-        if (direction == 0)
-        {
-            adjList[v].push_back(u);
-            edges.push_back({v, u, weight}); // Add reverse edge for undirected graph
+    void addEdge(int u, int v, int weight, bool directed) {
+        adjList[u].push_back({v, weight});
+        edges.push_back({u, v, weight});
+        if (!directed) {
+            adjList[v].push_back({u, weight});
+            edges.push_back({v, u, weight});
         }
     }
 
-    // Print adjacency list
-    void printAdjacencyList()
-    {
-        for (auto node : adjList)
-        {
-            cout << node.first << " -> ";
-            for (auto neighbour : node.second)
-            {
-                cout << neighbour << ", ";
+    void printAdjacencyListWithWeights() {
+        cout << "Adjacency List with Weights:" << endl;
+        for (const auto &node : adjList) {
+            cout << "Node " << node.first << ":";
+            for (const auto &nbr : node.second) {
+                cout << " -> (" << nbr.first << ", " << nbr.second << ")";
             }
             cout << endl;
         }
     }
 
-    // Kruskal's Algorithm to find Minimum Spanning Tree (MST)
-    int kruskalMST(int n)
-    {
-        // Sort edges by weight using lambda function
-        sort(edges.begin(), edges.end(), [](const tuple<int, int, int> &a, const tuple<int, int, int> &b)
-             {
-                 return get<2>(a) < get<2>(b); // Compare by weight (get<2>)
-             });
+    int kruskalMST(int n) {
+        sort(edges.begin(), edges.end(), [](const tuple<int, int, int> &a, const tuple<int, int, int> &b) {
+            return get<2>(a) < get<2>(b);
+        });
 
         UnionFind uf(n);
         int mstWeight = 0;
 
-        for (auto &edge : edges)
-        {
+        for (auto &edge : edges) {
             int u = get<0>(edge);
             int v = get<1>(edge);
             int weight = get<2>(edge);
 
-            if (uf.find(u) != uf.find(v))
-            {
-                uf.unionByRank(u, v); // If no cycle, unite the sets
-                mstWeight += weight;  // Add edge to MST
+            if (uf.find(u) != uf.find(v)) {
+                uf.unionByRank(u, v);
+                mstWeight += weight;
             }
         }
 
         return mstWeight;
     }
 
-    // Check if the graph contains a cycle
-    bool hasCycle()
-    {
+    bool hasCycle() {
         UnionFind uf(adjList.size());
-        for (auto &edge : edges)
-        {
+        for (auto &edge : edges) {
             int u = get<0>(edge);
             int v = get<1>(edge);
-            if (uf.find(u) == uf.find(v))
-            {
-                return true; // Cycle detected
+            if (uf.find(u) == uf.find(v)) {
+                return true;
             }
             uf.unionByRank(u, v);
         }
-        return false; // No cycle
+        return false;
     }
 
-    // Find the number of connected components
-    int findConnectedComponents()
-    {
+    int findConnectedComponents() {
         UnionFind uf(adjList.size());
-        for (auto &edge : edges)
-        {
+        for (auto &edge : edges) {
             int u = get<0>(edge);
             int v = get<1>(edge);
             uf.unionByRank(u, v);
@@ -158,34 +122,25 @@ public:
     }
 };
 
-int main()
-{
+int main() {
     Graph g;
-    int n = 6; // Number of nodes
+    int n = 6; // total number of nodes
 
-    // Adding weighted edges for MST
-    g.addEdge(0, 1, 10, 0);
-    g.addEdge(0, 2, 6, 0);
-    g.addEdge(0, 3, 5, 0);
-    g.addEdge(1, 3, 15, 0);
-    g.addEdge(2, 3, 4, 0);
+    g.addEdge(0, 1, 10, false);
+    g.addEdge(0, 2, 6, false);
+    g.addEdge(0, 3, 5, false);
+    g.addEdge(1, 3, 15, false);
+    g.addEdge(2, 3, 4, false);
 
-    // Print adjacency list
-    g.printAdjacencyList();
+    g.printAdjacencyListWithWeights();
 
-    // 1. Kruskal's Algorithm
     cout << "Minimum Spanning Tree Weight: " << g.kruskalMST(n) << endl;
 
-    // 2. Connected Components
     cout << "Number of Connected Components: " << g.findConnectedComponents() << endl;
 
-    // 3. Cycle Detection
-    if (g.hasCycle())
-    {
+    if (g.hasCycle()) {
         cout << "Graph contains a cycle" << endl;
-    }
-    else
-    {
+    } else {
         cout << "Graph does not contain a cycle" << endl;
     }
 

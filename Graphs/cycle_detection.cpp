@@ -33,7 +33,7 @@ public:
         }
     }
 
-    bool checkCyclicUsingBfs(int src, unordered_map<int, bool> &visited)
+    bool check_Cyclic_Using_Bfs(int src, unordered_map<int, bool> &visited)
     {
         queue<int> q;
         unordered_map<int, int> parent;
@@ -64,7 +64,7 @@ public:
         return false;
     }
 
-    bool checkCyclicUsingDfs(int src, unordered_map<int, bool> &visited, int parent)
+    bool check_Cyclic_Using_Dfs(int src, unordered_map<int, bool> &visited, int parent)
     {
         visited[src] = true;
 
@@ -72,7 +72,7 @@ public:
         {
             if (!visited[nbr])
             {
-                if (checkCyclicUsingDfs(nbr, visited, src))
+                if (check_Cyclic_Using_Dfs(nbr, visited, src))
                     return true;
             }
             else if (nbr != parent)
@@ -83,7 +83,7 @@ public:
         return false;
     }
 
-    bool checkCyclicDirectedGraphUsingDfs(int src, unordered_map<int, bool> &visited, unordered_map<int, bool> &dfsVisited)
+    bool check_Cyclic_Directed_Graph_Using_Dfs(int src, unordered_map<int, bool> &visited, unordered_map<int, bool> &dfsVisited)
     {
         visited[src] = true;
         dfsVisited[src] = true;
@@ -92,7 +92,7 @@ public:
         {
             if (!visited[nbr])
             {
-                if (checkCyclicDirectedGraphUsingDfs(nbr, visited, dfsVisited))
+                if (check_Cyclic_Directed_Graph_Using_Dfs(nbr, visited, dfsVisited))
                     return true;
             }
             else if (dfsVisited[nbr])
@@ -125,7 +125,7 @@ int main()
     {
         if (!visited[i])
         {
-            ans = g.checkCyclicDirectedGraphUsingDfs(i, visited, dfsVisited);
+            ans = g.check_Cyclic_Directed_Graph_Using_Dfs(i, visited, dfsVisited);
             if (ans)
                 break;
         }

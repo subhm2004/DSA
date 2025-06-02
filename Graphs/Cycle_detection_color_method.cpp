@@ -1,8 +1,14 @@
+
+/*
+  WHITE = unvisited
+  GRAY  = Its adjacent nodes are being visited
+  BLACK = All its adjacent nodes are visited
+*/
+
 #include <iostream>
 #include <unordered_map>
 #include <list>
 #include <vector>
-#include <map>
 using namespace std;
 
 enum color
@@ -11,58 +17,56 @@ enum color
     GRAY,
     BLACK
 };
-/*
-  WHITE = unvisited
-  GRAY  = Its adjacent nodes are being visited
-  BLACK = All its adjacent nodes are visited
-*/
 
-// Function to add an edge in a directed or undirected graph
 class Solution
 {
 public:
     unordered_map<int, list<pair<int, int>>> adjList;
 
+    // Add edge to directed or undirected graph
     void addEdge(int u, int v, int w, bool direction)
     {
         adjList[u].push_back({v, w});
         if (!direction)
         {
-            adjList[v].push_back({u, w}); // Add reverse edge if undirected
+            adjList[v].push_back({u, w});
         }
     }
 
-    // Function to detect a cycle in a directed graph using DFS with color marking
-    bool isCycleUtil(map<int, vector<int>> &adj, int start, vector<int> &NodeColor)
+    // DFS utility function to detect cycle using color method
+    bool isCycleUtil(int node, unordered_map<int, int> &nodeColor)
     {
-        NodeColor[start] = GRAY; // Mark the current node as visiting
+        nodeColor[node] = GRAY;
 
-        // Visit all the adjacent nodes
-        for (auto x : adj[start])
+        for (auto &neighbor : adjList[node])
         {
-            if (NodeColor[x] == GRAY)
-                return true; // Found a cycle
-            if (NodeColor[x] == WHITE && isCycleUtil(adj, x, NodeColor))
-                return true; // Recursively check adjacent nodes
+            int v = neighbor.first;
+            if (nodeColor[v] == GRAY)
+                return true; // Back edge found
+            if (nodeColor[v] == WHITE && isCycleUtil(v, nodeColor))
+                return true;
         }
 
-        NodeColor[start] = BLACK; // Mark the node as fully processed
+        nodeColor[node] = BLACK;
         return false;
     }
 
-    // Function to check if there is a cycle in the graph
-    bool isCycle(map<int, vector<int>> &adj, int V)
+    // Main function to check if there is a cycle
+    bool isCycle(int V)
     {
-        vector<int> NodeColor(V, WHITE); // Initialize all nodes as unvisited (WHITE)
+        unordered_map<int, int> nodeColor;
+        for (int i = 0; i < V; ++i)
+            nodeColor[i] = WHITE;
 
-        for (int i = 0; i < V; i++)
+        for (int i = 0; i < V; ++i)
         {
-            if (NodeColor[i] == WHITE && isCycleUtil(adj, i, NodeColor))
+            if (nodeColor[i] == WHITE)
             {
-                return true; // Found a cycle
+                if (isCycleUtil(i, nodeColor))
+                    return true;
             }
         }
-        return false; // No cycle found
+        return false;
     }
 };
 
@@ -71,18 +75,17 @@ int main()
     Solution graph;
 
     int V = 4;
-    map<int, vector<int>> adj;
 
-    // Adding directed edges to the graph
-    graph.addEdge(0, 1, 0, true); // Directed edge from 0 to 1
-    graph.addEdge(0, 2, 0, true); // Directed edge from 0 to 2
-    graph.addEdge(1, 2, 0, true); // Directed edge from 1 to 2
-    graph.addEdge(2, 0, 0, true); // Directed edge from 2 to 0 (cycle)
-    graph.addEdge(2, 3, 0, true); // Directed edge from 2 to 3
-    graph.addEdge(3, 3, 0, true); // Self-loop at node 3 (cycle)
+    // Add directed edges
+    graph.addEdge(0, 1, 0, true);
+    graph.addEdge(0, 2, 0, true);
+    graph.addEdge(1, 2, 0, true);
+    graph.addEdge(2, 0, 0, true); // Cycle
+    graph.addEdge(2, 3, 0, true);
+    graph.addEdge(3, 3, 0, true); // Self-loop (cycle)
 
-    // Check for cycles in the graph
-    if (graph.isCycle(adj, V))
+    // Check for cycle
+    if (graph.isCycle(V))
     {
         cout << "There is a cycle" << endl;
     }
