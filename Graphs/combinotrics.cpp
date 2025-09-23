@@ -7,7 +7,7 @@ public:
     typedef long long ll;
     const int M = 1e9 + 7; // Prime Modulo
     const int N = 2e5 + 2; // Factorial limit
-    vector<ll> fact;
+    vector<ll> fact, invFact;
 
     ll mod(ll x) { return ((x % M + M) % M); }
     ll add(ll a, ll b) { return mod(a + b); }
@@ -18,10 +18,10 @@ public:
         ll ans = 1;
         while (b)
         {
-            if (b % 2)
+            if (b & 1)
                 ans = mul(ans, a);
             a = mul(a, a);
-            b /= 2;
+            b >>= 1;
         }
         return ans;
     }
@@ -33,14 +33,23 @@ public:
     Combinatorics()
     {
         fact.resize(N, 1);
+        invFact.resize(N, 1);
         precalc();
     }
 
     void precalc()
     {
+        // Precompute factorials
         for (int i = 1; i < N; i++)
         {
             fact[i] = mul(fact[i - 1], i);
+        }
+
+        // Precompute inverse factorials using Fermat's little theorem
+        invFact[N - 1] = inv(fact[N - 1]);
+        for (int i = N - 2; i >= 0; i--)
+        {
+            invFact[i] = mul(invFact[i + 1], i + 1);
         }
     }
 
@@ -48,14 +57,14 @@ public:
     {
         if (r > n || r < 0)
             return 0;
-        return mul(fact[n], mul(inv(fact[r]), inv(fact[n - r])));
+        return mul(fact[n], mul(invFact[r], invFact[n - r]));
     }
 
     ll nPr(ll n, ll r)
     {
         if (r > n || r < 0)
             return 0;
-        return mul(fact[n], inv(fact[n - r]));
+        return mul(fact[n], invFact[n - r]);
     }
 
     ll factorial(ll r)
@@ -63,6 +72,13 @@ public:
         if (r < 0)
             return 0;
         return fact[r];
+    }
+
+    ll inverse_factorial(ll r)
+    {
+        if (r < 0)
+            return 0;
+        return invFact[r];
     }
 
     // Generic function to compute the number of distinct arrangements
@@ -79,7 +95,7 @@ public:
         for (const auto &entry : freq)
         {
             ll count = entry.second;
-            ways = mul(ways, inv(factorial(count)));
+            ways = mul(ways, invFact[count]); // use precomputed inverse factorial
         }
         return ways;
     }
