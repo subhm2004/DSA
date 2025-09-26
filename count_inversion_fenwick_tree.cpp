@@ -35,35 +35,31 @@ public:
 };
 
 // ==========================
-// Inversion Count using BIT
+// Inversion Count using BIT + coordinate compression via set
 // ==========================
 ll countInversions(vector<int> &arr)
 {
     int n = arr.size();
 
-    // Step 1: Coordinate compression
-    vector<int> sorted = arr;
-    sort(sorted.begin(), sorted.end());
-    sorted.erase(unique(sorted.begin(), sorted.end()), sorted.end());
+    // Step 1: Coordinate compression using set + map
+    set<int> s(arr.begin(), arr.end()); // sorted unique elements
+    unordered_map<int, int> rank;
+    int r = 1;
+    for (int x : s)
+        rank[x] = r++;
 
-    int compressed_size = sorted.size(); // 🔹 FIX 1: Get actual compressed size
-
-    auto getRank = [&](int x)
-    {
-        return int(lower_bound(sorted.begin(), sorted.end(), x) - sorted.begin() + 1);
-    };
-
-    BIT bit(compressed_size); // 🔹 FIX 2: Use compressed_size instead of n
+    BIT bit(rank.size()); // size = number of unique elements
     ll count = 0;
 
     // Step 2: Traverse Left → Right
     for (int i = 0; i < n; i++)
     {
-        int rank = getRank(arr[i]);
+        int compressedIndex = rank[arr[i]];
         // Count bigger elements already seen
-        count += bit.sum(compressed_size) - bit.sum(rank); // 🔹 FIX 3: Use compressed_size
-        bit.update(rank, 1);
+        count += bit.sum(rank.size()) - bit.sum(compressedIndex);
+        bit.update(compressedIndex, 1);
     }
+
     return count;
 }
 
@@ -79,7 +75,7 @@ int main()
         {10, 9, 8, 7, 6, 5},           // Expected = 15
         {1, 2, 3, 4, 5},               // Expected = 0
         {1000000, 999999, 2, 1, 5000}, // Expected = 8
-        {5, 3, 5, 1, 3}                // 🔹 Test case with duplicates: Expected = 4
+        {5, 3, 5, 1, 3}                // Test case with duplicates: Expected = 4
     };
 
     for (auto &arr : tests)
@@ -89,5 +85,6 @@ int main()
             cout << x << " ";
         cout << "\nInversions = " << countInversions(arr) << "\n\n";
     }
+
     return 0;
 }
