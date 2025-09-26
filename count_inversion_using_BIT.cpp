@@ -25,7 +25,7 @@ public:
     }
 
     // ✅ Prefix Sum Query
-    ll prefixSum(int i)
+    ll sum(int i) // sum of [1..i]
     {
         ll total = 0;
         for (; i > 0; i -= (i & -i))
@@ -34,16 +34,16 @@ public:
     }
 
     // ✅ Range Sum Query [l..r]
-    ll rangeSum(int l, int r)
+    ll range_Sum(int l, int r)
     {
-        return prefixSum(r) - prefixSum(l - 1);
+        return sum(r) - sum(l - 1);
     }
 };
 
 // ==========================
 // Inversion Count using BIT
 // ==========================
-ll countInversions(vector<int> &arr)
+ll count_Inversions(vector<int> &arr)
 {
     int n = arr.size();
 
@@ -65,7 +65,7 @@ ll countInversions(vector<int> &arr)
     {
         int rank = getRank(arr[i]);
         // Count bigger elements already seen
-        cnt += bit.rangeSum(rank + 1, n); // 🔹 now using rangeSum()
+        cnt += bit.range_Sum(rank + 1, n); // 🔹 now using range_Sum()
         bit.update(rank, 1);
     }
     return cnt;
@@ -90,7 +90,7 @@ int main()
         cout << "Array: ";
         for (int x : arr)
             cout << x << " ";
-        cout << "\nInversions = " << countInversions(arr) << "\n\n";
+        cout << "\nInversions = " << count_Inversions(arr) << "\n\n";
     }
 
     return 0;
