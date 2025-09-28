@@ -2,7 +2,7 @@
 using namespace std;
 
 // Ye class Mo's Algorithm with Updates ko implement karta hai
-class MosAlgorithmWithUpdates
+class Mos_Algorithm_With_Updates
 {
 private:
     vector<int> arr;         // Original array
@@ -28,7 +28,7 @@ public:
     };
 
     // Constructor
-    MosAlgorithmWithUpdates(const vector<int> &input)
+    Mos_Algorithm_With_Updates(const vector<int> &input)
     {
         arr = input;
         BLOCK_SIZE = max(1, (int)sqrt(arr.size())); // Block size = sqrt(n), 0 se avoid karne ke liye
@@ -142,16 +142,16 @@ void test_algorithm()
 {
     cout << "=== TEST CASE 1: Basic Operations ===\n";
     vector<int> arr1 = {1, 2, 3, 4, 5};
-    MosAlgorithmWithUpdates mo1(arr1);
+    Mos_Algorithm_With_Updates mo1(arr1);
 
     // Updates define karo
-    vector<MosAlgorithmWithUpdates::Update> updates1 = {
+    vector<Mos_Algorithm_With_Updates::Update> updates1 = {
         {1, 10, arr1[1]}, // arr[1]: 2 -> 10
         {3, 20, arr1[3]}  // arr[3]: 4 -> 20
     };
 
     // Queries define karo
-    vector<MosAlgorithmWithUpdates::Query> queries1 = {
+    vector<Mos_Algorithm_With_Updates::Query> queries1 = {
         {0, 2, 0, 0}, // sum[0,2] before updates = 1+2+3 = 6
         {1, 4, 1, 1}, // sum[1,4] after 1st update = 10+3+4+5 = 22
         {0, 4, 2, 2}, // sum[0,4] after 2nd update = 1+10+3+20+5 = 39
@@ -169,15 +169,15 @@ void test_algorithm()
 
     cout << "=== TEST CASE 2: Multiple Updates on Same Index ===\n";
     vector<int> arr2 = {10, 20, 30, 40};
-    MosAlgorithmWithUpdates mo2(arr2);
+    Mos_Algorithm_With_Updates mo2(arr2);
 
-    vector<MosAlgorithmWithUpdates::Update> updates2 = {
+    vector<Mos_Algorithm_With_Updates::Update> updates2 = {
         {0, 100, arr2[0]}, // arr[0]: 10 -> 100
         {0, 200, 100},     // arr[0]: 100 -> 200
         {2, 300, arr2[2]}  // arr[2]: 30 -> 300
     };
 
-    vector<MosAlgorithmWithUpdates::Query> queries2 = {
+    vector<Mos_Algorithm_With_Updates::Query> queries2 = {
         {0, 3, 0, 0}, // sum[0,3] t=0 = 10+20+30+40 = 100
         {0, 3, 1, 1}, // sum[0,3] t=1 = 100+20+30+40 = 190
         {0, 3, 2, 2}, // sum[0,3] t=2 = 200+20+30+40 = 290
@@ -195,14 +195,14 @@ void test_algorithm()
 
     cout << "=== TEST CASE 3: Edge Cases ===\n";
     vector<int> arr3 = {5, -3, 7, -1, 2};
-    MosAlgorithmWithUpdates mo3(arr3);
+    Mos_Algorithm_With_Updates mo3(arr3);
 
-    vector<MosAlgorithmWithUpdates::Update> updates3 = {
+    vector<Mos_Algorithm_With_Updates::Update> updates3 = {
         {1, 0, arr3[1]},  // arr[1]: -3 -> 0
         {4, -10, arr3[4]} // arr[4]: 2 -> -10
     };
 
-    vector<MosAlgorithmWithUpdates::Query> queries3 = {
+    vector<Mos_Algorithm_With_Updates::Query> queries3 = {
         {0, 0, 0, 0}, // single element: arr[0] = 5
         {1, 1, 1, 0}, // single element: arr[1] = -3
         {1, 1, 2, 1}, // single element after update: arr[1] = 0
