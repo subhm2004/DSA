@@ -223,6 +223,24 @@ void test_algorithm()
     cout << "=== All Tests Completed! ===\n";
 }
 
+// ========================== Time Complexity Explanation ===========================
+/*
+    Mo's Algorithm with Updates ki time complexity:
+
+    - Agar sirf queries hoti (no updates): O((Q + N) * sqrt(N)), jahan Q = queries, N = array size.
+    - Agar updates bhi hain (let U = total updates):
+        - Sorting queries: O(Q * log Q)
+        - Har query ke liye:
+            - Left/right pointers move: O(sqrt(N)) (amortized)
+            - Time pointer (updates apply/undo): O(sqrt(U)) (amortized)
+        - Total: O((Q + U) * N^(2/3)) (cube root decomposition ke idea se)
+        - Practical: Har query ke liye O(N^(2/3)) expected, jab blocks ka size N^(2/3) liya jaye.
+
+    - Overall: O((Q + U) * N^(2/3)) (amortized per query), lekin implementation me block size sqrt(N) bhi kaafi cases me fast hota hai.
+
+    - Note: Ye complexity tabhi valid hai jab queries aur updates random order me ho aur block size optimize kiya ho.
+*/
+
 // Main function
 int main()
 {
