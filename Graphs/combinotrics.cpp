@@ -99,45 +99,59 @@ public:
         }
         return ways;
     }
-    ll findRank(const string &s)
+    ll find_rank(const string &s)
     {
         int n = s.size();
         vector<int> freq(256, 0);
+
+        // 🔹 Step 1: Har character ka frequency count lo
         for (char c : s)
             freq[c]++;
 
-        ll rank = 1;
+        ll rank = 1; // Rank 1 se start hota hai (lexicographic order me)
 
+        // 🔹 Step 2: Har position pe check karo kitne smaller characters pehle aa sakte hain
         for (int i = 0; i < n; i++)
         {
-            // Count characters smaller than s[i] that are still available
-            ll smaller = 0;
+            // Har character 's[i]' se chhote characters ke liye
             for (int ch = 0; ch < s[i]; ch++)
-                if (freq[ch] > 0)
-                    smaller += freq[ch];
-
-            if (smaller > 0)
             {
-                // Remove current character temporarily
-                freq[s[i]]--;
+                if (freq[ch] == 0)
+                    continue; // Agar 'ch' already khatam ho gaya, skip karo
 
-                // Compute product of inverse factorials of remaining frequencies
-                ll inv_product = 1;
-                for (int ch = 0; ch < 256; ch++)
-                    if (freq[ch] > 0)
-                        inv_product = mul(inv_product, inverse_factorial(freq[ch]));
+                // 🔸 Step 2.1: Agar hum 'ch' ko current position i pe fix karte hain
+                // toh 'ch' ka frequency temporarily 1 kam kar do
+                freq[ch]--;
 
-                // Calculate contribution of smaller characters
-                ll term = mul(smaller, mul(factorial(n - i - 1), inv_product));
-                rank = add(rank, term);
+                // 🔸 Step 2.2: Baaki ke (n - i - 1) characters ke permutations count karo
+                // Formula: (n - i - 1)! / (freq[a]! * freq[b]! * ...)
+                ll numerator = factorial(n - i - 1);
+                ll denominator = 1;
+
+                // Har character ka factorial multiply karo denominator me
+                for (int c = 0; c < 256; c++)
+                {
+                    if (freq[c] > 0)
+                        denominator = mul(denominator, factorial(freq[c]));
+                }
+
+                // 🔸 Step 2.3: Total possible strings starting with 'ch'
+                // = numerator / denominator (mod ke sath)
+                ll contribution = modDiv(numerator, denominator);
+
+                // Rank me in permutations ka count add kar do
+                rank = add(rank, contribution);
+
+                // 🔸 Step 2.4: Frequency wapas restore karo
+                freq[ch]++;
             }
-            else
-            {
-                freq[s[i]]--; // just remove current character
-            }
+
+            // 🔹 Step 3: Ab current character fix kar lo aur aage badho
+            freq[s[i]]--;
         }
 
-        return rank % M;
+        // 🔹 Final rank return karo (1-based)
+        return rank;
     }
 };
 
@@ -191,7 +205,7 @@ int main()
 
     for (const string &s : rankTests)
     {
-        cout << "Lexicographic rank of \"" << s << "\": " << comb.findRank(s) << "\n";
+        cout << "Lexicographic rank of \"" << s << "\": " << comb.find_rank(s) << "\n";
     }
 
     return 0;
