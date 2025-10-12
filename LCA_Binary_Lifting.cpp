@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class BinaryLifting
+class Binary_Lifting
 {
 private:
     int n, LOG;
@@ -9,7 +9,7 @@ private:
     vector<int> depth;
 
 public:
-    BinaryLifting(int n, const vector<int> &parent)
+    Binary_Lifting(int n, const vector<int> &parent)
     {
         this->n = n;
         LOG = ceil(log2(n)) + 1;
@@ -53,7 +53,7 @@ public:
         }
     }
 
-    int getKthAncestor(int node, int k)
+    int get_Kth_Ancestor(int node, int k)
     {
         for (int i = 0; i < LOG; ++i)
         {
@@ -71,7 +71,7 @@ public:
     {
         if (depth[u] < depth[v])
             swap(u, v);
-        u = getKthAncestor(u, depth[u] - depth[v]);
+        u = get_Kth_Ancestor(u, depth[u] - depth[v]);
         if (u == v)
             return u;
 
@@ -102,12 +102,12 @@ int main()
     int n = 11;
     vector<int> parent = {-1, 0, 0, 0, 1, 1, 2, 2, 4, 6, 6};
 
-    BinaryLifting bl(n, parent);
+    Binary_Lifting bl(n, parent);
 
-    // Test getKthAncestor
-    cout << "2nd ancestor of 8: " << bl.getKthAncestor(8, 2) << endl;   // Output: 1
-    cout << "3rd ancestor of 9: " << bl.getKthAncestor(9, 3) << endl;   // Output: 0
-    cout << "1st ancestor of 10: " << bl.getKthAncestor(10, 1) << endl; // Output: 6
+    // Test get_Kth_Ancestor
+    cout << "2nd ancestor of 8: " << bl.get_Kth_Ancestor(8, 2) << endl;   // Output: 1
+    cout << "3rd ancestor of 9: " << bl.get_Kth_Ancestor(9, 3) << endl;   // Output: 0
+    cout << "1st ancestor of 10: " << bl.get_Kth_Ancestor(10, 1) << endl; // Output: 6
 
     // Test find_LCA
     cout << "LCA of 5 and 8: " << bl.find_LCA(5, 8) << endl;   // Output: 1
@@ -123,4 +123,4 @@ int main()
 // The tree is represented using a parent array, where the index represents the node and the value
 // at that index represents the parent of the node. The depth of each node is calculated using
 // a depth-first search (DFS) traversal. The ancestors are stored in a 2D vector `up`, where `up[i][j]` represents the 2^j-th ancestor of node i.
-// The main function demonstrates the usage of the BinaryLifting class with a sample tree
+// The main function demonstrates the usage of the Binary_Lifting class with a sample tree
