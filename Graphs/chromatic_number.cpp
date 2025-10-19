@@ -71,7 +71,7 @@ bool isSafe(int node, vector<vector<int>> &graph, vector<int> &color, int c)
     return true;
 }
 
-bool graphColoringUtil(vector<vector<int>> &graph, int m, vector<int> &color, int node)
+bool graph_Coloring_Util(vector<vector<int>> &graph, int m, vector<int> &color, int node)
 {
     if (node == graph.size()) // All nodes colored
         return true;
@@ -81,7 +81,7 @@ bool graphColoringUtil(vector<vector<int>> &graph, int m, vector<int> &color, in
         if (isSafe(node, graph, color, c))
         {
             color[node] = c;
-            if (graphColoringUtil(graph, m, color, node + 1))
+            if (graph_Coloring_Util(graph, m, color, node + 1))
                 return true;
             color[node] = 0; // Backtrack
         }
@@ -89,13 +89,13 @@ bool graphColoringUtil(vector<vector<int>> &graph, int m, vector<int> &color, in
     return false;
 }
 
-void graphColoring(Graph &g, int m)
+void graph_Coloring(Graph &g, int m)
 {
     vector<vector<int>> graph = g.getAdjMatrix();
     int n = graph.size();
     vector<int> color(n, 0);
 
-    if (graphColoringUtil(graph, m, color, 0))
+    if (graph_Coloring_Util(graph, m, color, 0))
     {
         cout << "\nGraph can be colored with " << m << " colors:\n";
         for (int i = 0; i < n; i++)
@@ -121,7 +121,7 @@ int main()
     }
 
     g.printGraph();
-    graphColoring(g, m);
+    graph_Coloring(g, m);
 
     return 0;
 }
