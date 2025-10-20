@@ -2,6 +2,7 @@
 using namespace std;
 typedef long long ll;
 // Double Hashing for Substring Hashing with Palindrome Check
+//
 class Sub_String_Hash
 {
 public:
@@ -49,10 +50,18 @@ public:
             */
 
             // prefix hashing formula:
+            /*
+             pref[i+1] = hash of first i+1 characters using polynomial rolling hash formula:
 
-            /* hash_1[i+1] = hash_1[i]*RADIX_1 + val (mod MOD_1)
-               hash_2[i+1] = hash_2[i]*RADIX_2 + val (mod MOD_2)
-            */
+             hash(s[0..i]) = s[0] * RADIX^i + s[1] * RADIX^(i-1) + ... + s[i] * RADIX^0
+
+             This is prefix hashing.
+
+             Why i+1?
+             Because pref[0] = 0 for the empty string,
+             so pref[i+1] stores the hash of the first i+1 characters.
+             */
+
             pref_1[i + 1] = (pref_1[i] * RADIX_1 + val) % MOD_1;
             pref_2[i + 1] = (pref_2[i] * RADIX_2 + val) % MOD_2;
 
@@ -111,7 +120,39 @@ public:
         ll hash_2 = (pref_2[r + 1] - pref_2[l] * pow_2[r - l + 1] % MOD_2 + MOD_2) % MOD_2;
         return {hash_1 % MOD_1, hash_2 % MOD_2};
     }
-
+    /**
+     * We have:
+     *   Original string: s[0 ... n-1]
+     *   Reversed string: s_rev[i] = s[n-1 - i]
+     *
+     * Suppose we want the hash of reversed substring s[l..r].
+     * That is, we want hash(s[r] s[r-1] ... s[l]).
+     *
+     * We already precomputed prefix hashes for s_rev.
+     * So we just need to find the substring in s_rev that corresponds
+     * to this reversed segment.
+     *
+     * Mathematical mapping:
+     *   s_rev[i] = s[n-1 - i]
+     *
+     * We need to find indices (rl, rr) in s_rev
+     * such that s_rev[rl..rr] = reverse(s[l..r]).
+     *
+     * Step 1: Find where s[r] appears in s_rev
+     *   s_rev[rl] = s[r]
+     *   => n - 1 - rl = r
+     *   => rl = n - 1 - r
+     *
+     * Step 2: Find where s[l] appears in s_rev
+     *   s_rev[rr] = s[l]
+     *   => n - 1 - rr = l
+     *   => rr = n - 1 - l
+     *
+     * Therefore:
+     *   The reversed substring [l..r] in s
+     *   corresponds to substring [rl..rr] in s_rev,
+     *   where rl = n-1-r and rr = n-1-l.
+     */
     pair<ll, ll> get_Reverse_Hash(int l, int r)
     {
         int rl = n - 1 - r; // reversed substring start
