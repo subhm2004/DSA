@@ -2,109 +2,104 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class Graph
-{
+class LCAEuler {
 public:
-    unordered_map<int, list<int>> adjList;
-    vector<int> height, euler, first, segtree;
-    unordered_map<int, bool> visited;
-    int n;
+    vector<vector<int>> adj;          // adjacency list
+    vector<int> depth;                // depth of nodes
+    vector<int> eulerTour;            // euler tour list
+    vector<int> firstOccur;           // first occurrence index in euler tour
+    vector<int> segmentTree;          // segment tree for RMQ
+    int n;                            // number of nodes
 
-    void addEdge(int u, int v)
-    {
-        adjList[u].push_back(v);
-        adjList[v].push_back(u); // Since it's a tree, edges are bidirectional
+    LCAEuler(int n) {
+        this->n = n;
+        adj.resize(n);
+        depth.resize(n);
+        firstOccur.resize(n);
     }
 
-    void dfs(int node, int h = 0, int parent = -1)
-    {
-        visited[node] = true;
-        height[node] = h;
-        first[node] = euler.size();
-        euler.push_back(node);
+    void addEdge(int u, int v) {
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
 
-        for (int neighbor : adjList[node])
-        {
-            if (neighbor != parent)
-            {
-                dfs(neighbor, h + 1, node);
-                euler.push_back(node);
-            }
+    void dfs(int node, int parent, int d) {
+        depth[node] = d;
+        firstOccur[node] = eulerTour.size();
+        eulerTour.push_back(node);
+
+        for (int neighbor : adj[node]) {
+            if (neighbor == parent) continue;
+            dfs(neighbor, node, d + 1);
+            eulerTour.push_back(node);
         }
     }
 
-    void build(int node, int b, int e)
-    {
-        if (b == e)
-        {
-            segtree[node] = euler[b];
+    void buildSegmentTree(int idx, int left, int right) {
+        if (left == right) {
+            segmentTree[idx] = eulerTour[left];
+            return;
         }
-        else
-        {
-            int mid = (b + e) / 2;
-            build(node * 2, b, mid);
-            build(node * 2 + 1, mid + 1, e);
-            int l = segtree[node * 2], r = segtree[node * 2 + 1];
-            segtree[node] = (height[l] < height[r]) ? l : r;
-        }
+
+        int mid = (left + right) / 2;
+        int leftChild = idx * 2 + 1;
+        int rightChild = idx * 2 + 2;
+
+        buildSegmentTree(leftChild, left, mid);
+        buildSegmentTree(rightChild, mid + 1, right);
+
+        int lNode = segmentTree[leftChild];
+        int rNode = segmentTree[rightChild];
+        segmentTree[idx] = (depth[lNode] < depth[rNode]) ? lNode : rNode;
     }
 
-    int query(int node, int b, int e, int L, int R)
-    {
-        if (b > R || e < L)
-            return -1;
-        if (b >= L && e <= R)
-            return segtree[node];
+    int querySegmentTree(int idx, int left, int right, int ql, int qr) {
+        if (right < ql || left > qr) return -1;
+        if (left >= ql && right <= qr) return segmentTree[idx];
 
-        int mid = (b + e) / 2;
-        int left = query(node * 2, b, mid, L, R);
-        int right = query(node * 2 + 1, mid + 1, e, L, R);
+        int mid = (left + right) / 2;
+        int leftChild = idx * 2 + 1;
+        int rightChild = idx * 2 + 2;
 
-        if (left == -1)
-            return right;
-        if (right == -1)
-            return left;
-        return height[left] < height[right] ? left : right;
+        int q1 = querySegmentTree(leftChild, left, mid, ql, qr);
+        int q2 = querySegmentTree(rightChild, mid + 1, right, ql, qr);
+
+        if (q1 == -1) return q2;
+        if (q2 == -1) return q1;
+        return depth[q1] < depth[q2] ? q1 : q2;
     }
 
-    void preprocessLCA(int root)
-    {
-        n = adjList.size();
-        height.resize(n);
-        first.resize(n);
-        euler.reserve(n * 2);
-        visited.clear();
-        dfs(root);
+    void preprocess(int root = 0) {
+        eulerTour.clear();
+        dfs(root, -1, 0);
 
-        int m = euler.size();
-        segtree.resize(m * 4);
-        build(1, 0, m - 1);
+        int m = eulerTour.size();
+        segmentTree.assign(4 * m, -1);
+        buildSegmentTree(0, 0, m - 1);
     }
 
-    int lca(int u, int v)
-    {
-        int left = first[u], right = first[v];
-        if (left > right)
-            swap(left, right);
-        return query(1, 0, euler.size() - 1, left, right);
+    int lca(int u, int v) {
+        int left = firstOccur[u];
+        int right = firstOccur[v];
+        if (left > right) swap(left, right);
+        return querySegmentTree(0, 0, eulerTour.size() - 1, left, right);
     }
 };
 
 // Example usage
-int main()
-{
-    Graph g;
+int main() {
+    int n = 7;
+    LCAEuler tree(n);
+
     vector<pair<int, int>> edges = {
-        {0, 1}, {0, 2}, {1, 3}, {1, 4}, {2, 5}, {2, 6}};
+        {0, 1}, {0, 2}, {1, 3}, {1, 4}, {2, 5}, {2, 6}
+    };
 
-    for (auto [u, v] : edges)
-        g.addEdge(u, v);
+    for (auto [u, v] : edges) tree.addEdge(u, v);
 
-    g.preprocessLCA(0); // Root is 0
+    tree.preprocess(0); // root = 0
 
-    cout << "LCA of 3 and 4: " << g.lca(3, 4) << endl;
-    cout << "LCA of 3 and 5: " << g.lca(3, 5) << endl;
-    cout << "LCA of 5 and 6: " << g.lca(5, 6) << endl;
-
-    return 0;
+    cout << "LCA of 3 and 4: " << tree.lca(3, 4) << endl; // expected: 1
+    cout << "LCA of 3 and 5: " << tree.lca(3, 5) << endl; // expected: 0
+    cout << "LCA of 5 and 6: " << tree.lca(5, 6) << endl; // expected: 2
 }
