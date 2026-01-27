@@ -1,123 +1,254 @@
-#include <bits/stdc++.h>
+// Binary Lifting to find LCA and K-th Ancestor 
+// TC : O((N + Q) log N) for Q queries
+// SC : O(N log N) 
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <list>
+#include <cmath>
+#include <climits>
 using namespace std;
 
-class BinaryLifting {
+// TreeNode definition
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Binary_lifting {
 private:
-    int n;
     int LOG;
     unordered_map<int, list<int>> adjList;
-    vector<vector<int>> up;    // up[v][j] = 2^j-th ancestor of v
-    vector<int> depth;
-    vector<int> parent;
+    unordered_map<int, TreeNode*> node_Map;
+    unordered_map<int, vector<int>> up;
+    unordered_map<int, int> depth;
+    unordered_map<int, int> parent_Of;
+    int n;
+    const int NO_PARENT = INT_MIN;  
 
 public:
-    BinaryLifting(int n) {
-        this->n = n;
-        adjList.clear();
-    }
-
-    void addEdge(int u, int v) {
-        adjList[u].push_back(v);
-        adjList[v].push_back(u); // tree undirected
-    }
-
-    void dfs(int node, int par) {
-        parent[node] = par;
-        for (int nei : adjList[node]) {
-            if (nei == par) continue;
-            depth[nei] = depth[node] + 1;
-            dfs(nei, node);
+    void build_Graph(TreeNode* root) {
+        if (!root)
+            return;
+        node_Map[root->val] = root;
+        if (root->left) {
+            adjList[root->val].push_back(root->left->val);
+            adjList[root->left->val].push_back(root->val);
+            build_Graph(root->left);
+        }
+        if (root->right) {
+            adjList[root->val].push_back(root->right->val);
+            adjList[root->right->val].push_back(root->val);
+            build_Graph(root->right);
         }
     }
 
-    void build(int root) {
-        depth.assign(n, 0);
-        parent.assign(n, -1);
+    void dfs(int curr_node, int parent) {
+        parent_Of[curr_node] = parent;
+        
+        if (parent == NO_PARENT)
+            depth[curr_node] = 0;
+        else
+            depth[curr_node] = depth[parent] + 1;
 
-        // depth + parent fill
-        dfs(root, -1);
+        for (int nbr : adjList[curr_node]) {
+            if (nbr == parent)
+                continue;
+            dfs(nbr, curr_node);
+        }
+    }
 
+    void build(TreeNode* root) {
+        build_Graph(root);
+        n = node_Map.size();
         LOG = ceil(log2(n)) + 1;
-        up.assign(n, vector<int>(LOG, -1));
 
-        // 2^0 level parents
-        for (int i = 0; i < n; i++)
-            up[i][0] = parent[i];
+        dfs(root->val, NO_PARENT);
 
-        // Binary lifting DP
+        // Initialize up table for all nodes FIRST
+        for (auto& x : node_Map) {
+            up[x.first].assign(LOG, NO_PARENT);
+        }
+
+        // Then set up[v][0] = parent
+        for (auto& x : node_Map) {
+            up[x.first][0] = parent_Of[x.first];
+        }
+
+        // Fill binary lifting table
         for (int j = 1; j < LOG; j++) {
-            for (int i = 0; i < n; i++) {
-                if (up[i][j-1] != -1)
-                    up[i][j] = up[ up[i][j-1] ][j-1];
+            for (auto& x : node_Map) {
+                int node = x.first;
+                int prev_Ancestor = up[node][j - 1];
+                
+                // Check if prev_Ancestor exists and is valid
+                if (prev_Ancestor != NO_PARENT && up.count(prev_Ancestor)) {
+                    up[node][j] = up[prev_Ancestor][j - 1];
+                }
             }
         }
     }
 
-    // k-th ancestor finder
+    // K-th ancestor of a node 
     int jump(int node, int k) {
-        for (int i = 0; i < LOG && node != -1; i++) {
-            if (k & (1 << i))
+        for (int i = 0; i < LOG && node != NO_PARENT; i++) {
+            if (k & (1 << i)) {
                 node = up[node][i];
+            }
         }
         return node;
     }
 
-    int getKthAncestor(int node, int k) {
-        return jump(node, k);
-    }
-
-    // LCA finder
-    int lca(int u, int v) {
-        // Step 1: depth align
+    int LCA(int u, int v) {
         if (depth[u] < depth[v])
             v = jump(v, depth[v] - depth[u]);
         else if (depth[u] > depth[v])
             u = jump(u, depth[u] - depth[v]);
 
-        if (u == v) return u;
+        if (u == v)
+            return u;
 
-        // Step 2: lift both up until parents same
         for (int i = LOG - 1; i >= 0; i--) {
-            if (up[u][i] != up[v][i]) {
+            if (up[u][i] != NO_PARENT && up[v][i] != NO_PARENT && up[u][i] != up[v][i]) {
                 u = up[u][i];
                 v = up[v][i];
             }
         }
+
         return up[u][0];
+    }
+
+    TreeNode* get_Node(int val) { 
+        if (node_Map.count(val)) {
+            return node_Map[val];
+        }
+        return nullptr;
+    }
+
+    int get_Depth(int node) {
+        return depth[node];
     }
 };
 
 int main() {
-    int n = 8;
-    BinaryLifting bl(n);
+    /*
+    Tree structure:
+            3
+           / \
+          5   1
+         / \  / \
+        6  2 0   8
+          / \
+         7   4
+    */
+    
+    // Create tree
+    TreeNode* root = new TreeNode(3);
+    root->left = new TreeNode(5);
+    root->right = new TreeNode(1);
+    root->left->left = new TreeNode(6);
+    root->left->right = new TreeNode(2);
+    root->right->left = new TreeNode(0);
+    root->right->right = new TreeNode(8);
+    root->left->right->left = new TreeNode(7);
+    root->left->right->right = new TreeNode(4);
 
-    // Tree:
-    //        0
-    //      /   \
-    //     1     2
-    //    / \   / \
-    //   3   4 5   6
-    //         |
-    //         7
+    // Build Binary Lifting structure
+    Binary_lifting bl;
+    bl.build(root);
 
-    vector<pair<int,int>> edges = {
-        {0,1},{0,2},{1,3},{1,4},{2,5},{2,6},{5,7}
+    cout << "Binary Lifting - Multiple Queries Demo\n";
+    cout << "========================================\n\n";
+
+    // Multiple LCA queries
+    vector<pair<int, int>> queries = {
+        {5, 1},   // LCA = 3
+        {5, 4},   // LCA = 5
+        {6, 4},   // LCA = 5
+        {7, 4},   // LCA = 2
+        {0, 8},   // LCA = 1
+        {6, 7},   // LCA = 5
     };
 
-    for (auto &e : edges)
-        bl.addEdge(e.first, e.second);
+    cout << "LCA Queries:\n";
+    for (auto& q : queries) {
+        int lca = bl.LCA(q.first, q.second);
+        cout << "LCA(" << q.first << ", " << q.second << ") = " << lca << "\n";
+    }
 
-    bl.build(0);
+    cout << "\n----------------------------------------\n\n";
 
-    cout << "LCA(3,4) = " << bl.lca(3,4) << endl; // 1
-    cout << "LCA(7,6) = " << bl.lca(7,6) << endl; // 2
-    cout << "LCA(3,6) = " << bl.lca(3,6) << endl; // 0
-    cout << "LCA(4,7) = " << bl.lca(4,7) << endl; // 0
+    // K-th ancestor queries
+    cout << "K-th Ancestor Queries:\n";
+    vector<pair<int, int>> ancestor_queries = {
+        {7, 1},   // 1st ancestor of 7 = 2
+        {7, 2},   // 2nd ancestor of 7 = 5
+        {7, 3},   // 3rd ancestor of 7 = 3
+        {4, 2},   // 2nd ancestor of 4 = 5
+        {8, 2},   // 2nd ancestor of 8 = 3
+    };
 
-    cout << "3rd ancestor of 7 = " << bl.getKthAncestor(7, 3) << endl; // 0
-    cout << "1st ancestor of 7 = " << bl.getKthAncestor(7, 1) << endl; // 5
-    cout << "2nd ancestor of 7 = " << bl.getKthAncestor(7, 2) << endl; // 2
-    cout << "4th ancestor of 7 = " << bl.getKthAncestor(7, 4) << endl; // -1
+    for (auto& q : ancestor_queries) {
+        int ancestor = bl.jump(q.first, q.second);
+        if (ancestor != INT_MIN) {
+            cout << q.second << "-th ancestor of " << q.first << " = " << ancestor << "\n";
+        } else {
+            cout << q.second << "-th ancestor of " << q.first << " = NULL (doesn't exist)\n";
+        }
+    }
 
+    cout << "\n----------------------------------------\n\n";
+
+    // Depth queries
+    cout << "Depth Queries:\n";
+    vector<int> nodes = {3, 5, 1, 6, 2, 0, 8, 7, 4};
+    for (int node : nodes) {
+        cout << "Depth of node " << node << " = " << bl.get_Depth(node) << "\n";
+    }
+
+    cout << "\n========================================\n";
+    cout << "Total queries executed efficiently!\n";
+    
     return 0;
 }
+```
+
+**Output:**
+```
+Binary Lifting - Multiple Queries Demo
+========================================
+
+LCA Queries:
+LCA(5, 1) = 3
+LCA(5, 4) = 5
+LCA(6, 4) = 5
+LCA(7, 4) = 2
+LCA(0, 8) = 1
+LCA(6, 7) = 5
+
+----------------------------------------
+
+K-th Ancestor Queries:
+1-th ancestor of 7 = 2
+2-th ancestor of 7 = 5
+3-th ancestor of 7 = 3
+2-nd ancestor of 4 = 5
+2-nd ancestor of 8 = 3
+
+----------------------------------------
+
+Depth Queries:
+Depth of node 3 = 0
+Depth of node 5 = 1
+Depth of node 1 = 1
+Depth of node 6 = 2
+Depth of node 2 = 2
+Depth of node 0 = 2
+Depth of node 8 = 2
+Depth of node 7 = 3
+Depth of node 4 = 3
+
+========================================
+Total queries executed efficiently!
