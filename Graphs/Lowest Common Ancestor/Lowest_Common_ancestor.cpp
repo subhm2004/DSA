@@ -1,3 +1,4 @@
+// LCA (Lowest Common Ancestor) finder using Euler Tour + Segment Tree + RMQ ka implementation hai.
 #include <bits/stdc++.h>
 using namespace std;
 
