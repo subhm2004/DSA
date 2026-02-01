@@ -1,5 +1,5 @@
 // Problem Summary in Hinglish:
-//
+//.
 // Humko ek integer array `nums` diya gaya hai, length n.
 // Aur ek array `queries` diya hai, jisme har query format me hai [li, ri, thresholdi].
 //
