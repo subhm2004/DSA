@@ -1,10 +1,9 @@
-// CSES Problem Set - Subtree Queries
-// Link: https://cses.fi/problemset/task/1137/
 #include <bits/stdc++.h>
 using namespace std;
 
 using ll = long long;
 
+/* -------- BIT (exact class you gave) -------- */
 class BIT
 {
 public:
@@ -53,27 +52,28 @@ public:
         end.assign(n + 1, 0);
         value.assign(n + 1, 0);
 
-        // you asked: size = 2*n
         linear_tree.assign(2 * n + 5, 0);
 
         timer = 0;
     }
 
-    void dfs(int node, int parent)
+    int dfs(int node, int parent)
     {
         start[node] = timer;
-        linear_tree[timer] = value[node];
-        timer++;
 
         for (auto &p : adjList[node])
         {
-            int nbr = p.first;
+            int nbr = p.first; // variable name = nbr
             if (nbr == parent)
                 continue;
             dfs(nbr, node);
         }
 
-        end[node] = timer - 1;
+        end[node] = timer;
+        linear_tree[timer] = value[node];
+        timer++;
+
+        return 0;
     }
 };
 
