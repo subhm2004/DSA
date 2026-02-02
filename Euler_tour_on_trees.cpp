@@ -59,9 +59,11 @@ public:
         timer = 0;
     }
 
-    int dfs(int node, int parent)
+    void dfs(int node, int parent)
     {
         start[node] = timer;
+        linear_tree[timer] = value[node];
+        timer++;
 
         for (auto &p : adjList[node])
         {
@@ -71,11 +73,7 @@ public:
             dfs(nbr, node);
         }
 
-        end[node] = timer;
-        linear_tree[timer] = value[node];
-        timer++;
-
-        return 0;
+        end[node] = timer - 1;
     }
 };
 
