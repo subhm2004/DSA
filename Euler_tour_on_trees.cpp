@@ -56,7 +56,7 @@ public:
 
         timer = 0;
     }
-
+    // Post-order Euler Tour
     int dfs(int node, int parent)
     {
         start[node] = timer;
@@ -75,6 +75,26 @@ public:
 
         return 0;
     }
+    /*
+    // Pre-order Euler Tour
+    int dfs(int node, int parent)
+    {
+        start[node] = timer;
+        linear_tree[timer] = value[node];
+        timer++;
+        for (auto &p : adjList[node])
+        {
+            int nbr = p.first;
+            if (nbr == parent)
+                continue;
+            dfs(nbr, node);
+        }
+
+        end[node] = timer - 1;
+        return 0;
+    }
+
+    */
 };
 
 int main()
@@ -119,7 +139,9 @@ int main()
 
             ll diff = x - et.value[s];
             et.value[s] = x;
-
+            // PRE-ORDER: ME AAYEGA YE
+            // bit.update(et.start[s] + 1, diff);
+            // POST-ORDER: ME AAYEGA YE
             bit.update(et.end[s] + 1, diff);
         }
         else
