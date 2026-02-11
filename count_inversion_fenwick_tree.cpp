@@ -3,7 +3,36 @@ using namespace std;
 using ll = long long;
 
 // ==========================
-// Coordinate Compression Class (same as yours)
+// Fenwick Tree (BIT)
+// ==========================
+class BIT
+{
+public:
+    int n;
+    vector<ll> bit;
+
+    BIT(int n)
+    {
+        this->n = n;
+        bit.assign(n + 1, 0);
+    }
+
+    void update(int i, ll x)
+    {
+        for (; i <= n; i += (i & -i))
+            bit[i] += x;
+    }
+
+    ll sum(int i)
+    {
+        ll total = 0;
+        for (; i > 0; i -= (i & -i))
+            total += bit[i];
+        return total;
+    }
+};
+// ==========================
+// Coordinate Compression Class 
 // ==========================
 class Coordinate_Compression
 {
@@ -38,45 +67,13 @@ public:
 };
 
 // ==========================
-// Fenwick Tree (BIT)
-// ==========================
-class BIT
-{
-public:
-    int n;
-    vector<ll> bit;
-
-    BIT(int n)
-    {
-        this->n = n;
-        bit.assign(n + 1, 0);
-    }
-
-    void update(int i, ll x)
-    {
-        for (; i <= n; i += (i & -i))
-            bit[i] += x;
-    }
-
-    ll sum(int i)
-    {
-        ll total = 0;
-        for (; i > 0; i -= (i & -i))
-            total += bit[i];
-        return total;
-    }
-};
-
-// ==========================
-// Inversion Count using your
-// Coordinate_Compression class
+// Inversion Count using Fenwick Tree
 // ==========================
 ll count_Inversions(vector<int> &arr)
 {
     int n = arr.size();
 
-    // use your class
-    Coordinate_Compression cc(arr);
+     Coordinate_Compression cc(arr);
 
     vector<int> comp = cc.get_compressed(arr);
 
