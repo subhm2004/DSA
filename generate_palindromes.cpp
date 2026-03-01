@@ -1,8 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <string>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
 
 // 1. Function to generate all palindromes of given length
@@ -49,6 +45,8 @@ void printPalindromesAndCount(int length)
         cout << num << " ";
     }
     cout << "\nTotal Count: " << pals.size() << "\n";
+    cout << "Sum of Palindromes: " << accumulate(pals.begin(), pals.end(), 0LL) << "\n";
+    cout << "Average of Palindromes: " << (pals.empty() ? 0 : accumulate(pals.begin(), pals.end(), 0LL) / pals.size()) << "\n";
 }
 
 // Example usage

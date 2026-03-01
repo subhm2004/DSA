@@ -62,7 +62,7 @@ public:
     }
 
     // Main function jo tree ka diameter calculate karta hai using TWO BFS approach
-    int findDiameter(unordered_map<int, list<int>> &adj)
+    int find_diameter(unordered_map<int, list<int>> &adj)
     {
         // STEP-1: Kisi bhi random node se sabse door ka node dhundo
         // Ye node diameter ka ek end point hoga (MATHEMATICAL PROPERTY of trees)
@@ -99,7 +99,7 @@ public:
         unordered_map<int, list<int>> adj = buildAdj(edges);
 
         // Step-2: Diameter calculate karo using two BFS approach
-        return findDiameter(adj);
+        return find_diameter(adj);
     }
 };
 

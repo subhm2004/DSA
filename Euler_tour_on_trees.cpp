@@ -3,7 +3,7 @@ using namespace std;
 
 using ll = long long;
 
-/* -------- BIT (exact class you gave) -------- */
+/* -------- BIT -------- */
 class BIT
 {
 public:
@@ -51,37 +51,17 @@ public:
         start.assign(n + 1, 0);
         end.assign(n + 1, 0);
         value.assign(n + 1, 0);
-
-        linear_tree.assign(2 * n + 5, 0);
-
+        linear_tree.assign(n + 5, 0);
         timer = 0;
     }
-    // Post-order Euler Tour
-    int dfs(int node, int parent)
-    {
-        start[node] = timer;
 
-        for (auto &p : adjList[node])
-        {
-            int nbr = p.first; // variable name = nbr
-            if (nbr == parent)
-                continue;
-            dfs(nbr, node);
-        }
-
-        end[node] = timer;
-        linear_tree[timer] = value[node];
-        timer++;
-
-        return 0;
-    }
-    /*
     // Pre-order Euler Tour
-    int dfs(int node, int parent)
+    void dfs(int node, int parent)
     {
         start[node] = timer;
         linear_tree[timer] = value[node];
         timer++;
+
         for (auto &p : adjList[node])
         {
             int nbr = p.first;
@@ -91,10 +71,7 @@ public:
         }
 
         end[node] = timer - 1;
-        return 0;
     }
-
-    */
 };
 
 int main()
@@ -122,7 +99,6 @@ int main()
 
     BIT bit(n);
 
-    // only first n positions are used
     for (int i = 0; i < n; i++)
         bit.update(i + 1, et.linear_tree[i]);
 
@@ -139,10 +115,7 @@ int main()
 
             ll diff = x - et.value[s];
             et.value[s] = x;
-            // PRE-ORDER: ME AAYEGA YE
-            // bit.update(et.start[s] + 1, diff);
-            // POST-ORDER: ME AAYEGA YE
-            bit.update(et.end[s] + 1, diff);
+            bit.update(et.start[s] + 1, diff);
         }
         else
         {
