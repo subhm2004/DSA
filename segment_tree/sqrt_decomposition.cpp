@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class SqrtDecomposition
+class SQRT_Decomposition
 {
 private:
     vector<int> arr;      // Original array
@@ -11,7 +11,7 @@ private:
 
 public:
     // Constructor: initialize with array
-    SqrtDecomposition(const vector<int> &input)
+    SQRT_Decomposition(const vector<int> &input)
     {
         arr = input;
         n = arr.size();
@@ -20,7 +20,7 @@ public:
         blockSum.assign(numBlocks, 0);               // initialize block sums
 
         // Preprocessing: calculate sum of each block
-        for (int i = 0; i < n; ++i)
+        for (int i = 0; i < n; i++)
             blockSum[i / blockSize] += arr[i];
     }
 
@@ -112,7 +112,7 @@ int main()
     {
         cout << "\n=== Array " << idx + 1 << " ===\n";
         vector<int> arr = arrays[idx];
-        SqrtDecomposition sqrtDecomp(arr);
+        SQRT_Decomposition sqrtDecomp(arr);
 
         // Print initial state
         sqrtDecomp.printState();
