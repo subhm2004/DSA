@@ -81,14 +81,14 @@ ll kthRoot_Newton(ll n, int k)
 
     // ── Phase 1: Newton-Raphson float iterations ──
     long double x = (long double)n;
-
+    const long double eps = 1e-15;
     for (int iter = 0; iter < 300; iter++)
     {
         // x_next = [(k-1)*x + n/x^(k-1)] / k
         long double xpow_km1 = powl(x, (long double)(k - 1));
         long double x_next = ((long double)(k - 1) * x + (long double)n / xpow_km1) / (long double)k;
 
-        if (fabsl(x_next - x) < 1e-9L)
+        if (abs(x - x_next) < eps)
             break;
 
         x = x_next;
